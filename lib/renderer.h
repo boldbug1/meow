@@ -4,6 +4,9 @@
 #include <vector>
 #include <fstream>
 #include <variant>
+#include <climits>
+#include <algorithm>
+
 
 struct pixel{
     uint8_t r,g,b,a;
@@ -19,6 +22,7 @@ struct Triangle{point a;point b;point c;pixel color;};
 
 using Shapes  = std::variant<Circle,Rectangle,Triangle>;
 
+int sign(int v);
 pixel blend(pixel dest, pixel src);
 void setpixel(std::vector<pixel>& fb, int w, int h, int x, int y, pixel color);
 void draw_line(std::vector<pixel>& fb, int w, int h, point a, point b, pixel color);

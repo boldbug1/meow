@@ -15,40 +15,71 @@ void fill_rect(std::vector<pixel>& fb, int w, int h, point a, point b, pixel col
     }
 }
 
-void draw_line(std::vector<pixel>& fb, int w, int h, point a, point b, pixel color){
+int sign(int v) {
+    if (v > 0) return 1;
+    if (v < 0) return -1;
+    return 0;
+}
+
+void draw_line(std::vector<pixel>& fb, int w, int h, point a, point b, pixel color) {
+    int dx = std::abs(b.x - a.x);
+    int dy = std::abs(b.y - a.y);
+
+    int sx = (a.x < b.x) ? 1 : -1;
+    int sy = (a.y < b.y) ? 1 : -1;
+
+    int err = dx - dy;
+
     int x = a.x;
     int y = a.y;
 
-    int dx = abs(b.x-a.x);
-    int dy = -abs(b.y-a.y);
+    while (true) {
+        setpixel(fb, w, h, x, y, color);
 
-    int sx = (b.x < a.x) ? -1 : 1;
-    int sy = (b.y < a.y) ? -1 : 1;
-
-    int err = dx+dy;
-
-    while(true){
-        setpixel(fb,w,h,x,y,color);
-
-        if(x == b.x && y == b.y){
+        if (x == b.x && y == b.y) {
             break;
         }
 
-        int e2 = 2*err;
+        int e2 = 2 * err;
 
-        if (e2 >= dy){
-            err = err+dy;
-            x = x+sx;
+        if (e2 > -dy) {
+            err -= dy;
+            x += sx;
         }
-        if (e2 <= dx){
-            err = err+dx;
-            y = y+sy;
+
+        if (e2 < dx) {
+            err += dx;
+            y += sy;
         }
     }
 }
 
-void fill_triangle(std::vector<pixel>& fb, int w, int h, point a, point b, point c, pixel color){
-    
+int edge_x(point a, point b, int y) {
+    if (b.y == a.y) return a.x;   // horizontal edge: avoid divide by zero
+    return a.x + (b.x - a.x) * (y - a.y) / (b.y - a.y);
+}
+
+void fill_triangle(std::vector<pixel>& fb, int w, int h, point a, point b, point c, pixel color) {
+    point p[] = {a, b, c};
+    std::sort(p, p + 3, [](point m, point n){ return m.y < n.y; });
+
+    for (int y = p[0].y; y <= p[2].y; y++) {
+        int x_long = edge_x(p[0], p[2], y);
+
+        int x_short;
+        if (y < p[1].y) {
+            x_short = edge_x(p[0], p[1], y);
+        } else {
+            x_short = edge_x(p[1], p[2], y);
+        }
+
+        int x_start = std::min(x_long, x_short);
+        int x_end   = std::max(x_long, x_short);
+
+        for (int x = x_start; x <= x_end; x++) {
+            setpixel(fb, w, h, x, y, color);
+        }
+    }
 }
 
 void save_ppm(const std::vector<pixel>& fb, int w, int h, const char* path){

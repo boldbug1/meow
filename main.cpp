@@ -3,20 +3,17 @@
 #include "lib/renderer.h"
 
 int main(void) {
-    int w = 16;
-    int h = 16;
+    int w = 1024;
+    int h = 1024;
 
     std::vector<pixel> framebuffer(w * h);
     pixel black = {0,0,0,255};
     pixel white = {255,255,255,255};
 
-    fill_rect(framebuffer,w,h,{0,0},{16,16},white);
+    fill_rect(framebuffer,w,h,{0,0},{1024,1024},white);
 
-    draw_line(framebuffer, w, h, {0,0},  {10,4},  black);   
-    draw_line(framebuffer, w, h, {10,8}, {0,12},  black);   
-    draw_line(framebuffer, w, h, {2,0},  {5,14},  black);
-    draw_line(framebuffer, w, h, {3,0},  {3,10},  black);  
+    fill_triangle(framebuffer, w, h, {555,0}, {255,444}, {888,888}, black);
 
-    save_ppm(framebuffer, w, h, "images/line.ppm");
+    save_ppm(framebuffer, w, h, "images/triangle_filled.ppm");
     return 0;
 }
